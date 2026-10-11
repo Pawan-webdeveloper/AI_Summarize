@@ -1,59 +1,136 @@
-# AI Web Scraper
+# 🔍 AI Web Scraper
 
-Paste a URL, click **Summarize**, and get a short AI summary of the page.
+**Paste any webpage URL → get an instant AI summary.**
 
-## Structure
+A full-stack app: a React frontend collects the URL, an Express backend scrapes the page's text, and the free-tier **Groq** API turns it into a short summary.
+
+![AI Web Scraper Architecture](docs/architecture.png)
+
+---
+
+## ✨ Features
+
+| Feature | Detail |
+|---|---|
+| 🔗 URL input + Summarize button | Validates the URL before sending |
+| 🌐 Server-side scraping | `fetch` + `cheerio` extracts headings/paragraphs/list text, strips nav/footers/scripts |
+| 🤖 AI summary | Groq (`gpt-oss-20b`, free tier) writes a 3–5 sentence paragraph |
+| ⏳ Loading state | Spinner + disabled button while processing |
+| ❌ Friendly errors | Bad URL, unreachable page, bot-blocked site, missing API key — each gets a clear message |
+| 🔒 Safe | Private/localhost URLs are rejected (SSRF guard); API key never reaches the browser |
+
+---
+
+##  Project Structure
 
 ```
-client/   React + TypeScript + Vite frontend
-server/   Node + Express backend (scraping + Groq AI)
+├── client/              React 19 + TypeScript + Vite (frontend)
+│   ├── src/
+│   │   ├── App.tsx      URL form, loading/success/error states
+│   │   ├── App.css      UI styles
+│   │   └── index.css    theme (indigo → sky gradient)
+│   └── vite.config.ts   dev proxy: /api → localhost:3000
+│
+├── server/              Node + Express (backend)
+│   ├── index.js         POST /api/summarize — validate → scrape → Groq → JSON
+│   ├── dist/            production build of the client (served by Express)
+│   └── .env             ← YOUR GROQ API KEY GOES HERE
+│
+├── docs/architecture.png
+└── package.json         npm workspaces (client + server)
 ```
 
-- **Scraping:** fetch + [cheerio](https://cheerio.js.org/) text extraction
-- **AI:** [Groq](https://console.groq.com/) free-tier chat completions API
+---
 
-## Setup
+## 🚀 Run It Locally
 
-This is an npm workspaces monorepo — install everything from the root:
+### 1. Prerequisites
+
+- **Node.js 18+** (uses built-in `fetch`) — check with `node -v`
+- A **free Groq API key** → sign up at [console.groq.com](https://console.groq.com/keys)
+
+### 2. Install dependencies
+
+From the project root:
 
 ```bash
 npm install
 ```
 
-Add your Groq key to `server/.env` (copy `server/.env.example` if missing):
+### 3. Add your API key  ⚠️ important
 
-```
-GROQ_API_KEY=your-key-here
-```
-
-Get a free key at https://console.groq.com/keys
-
-## Run
-
-Two terminals from the project root:
+Create the file **`server/.env`** (yes — inside the `server/` folder, not the project root):
 
 ```bash
-npm run server     # Express API on http://localhost:3000
-npm run dev        # Vite dev server (proxies /api to :3000)
+cp server/.env.example server/.env
 ```
 
-Open the URL Vite prints (default http://localhost:5173), paste a webpage URL, and click Summarize.
+Then open `server/.env` and paste your key:
 
-## Deploy (backend only)
+```env
+GROQ_API_KEY=your-actual-key-here
+GROQ_MODEL=openai/gpt-oss-20b
+PORT=3000
+```
 
-The client builds **into the server folder** (`server/dist`) and Express serves it, so you only deploy `server/`:
+> `.env` is git-ignored, so your key is never committed.
+
+### 4. Start both servers (development)
+
+Open **two terminals**, both from the project root:
 
 ```bash
-npm run build      # client → server/dist
-npm start          # http://localhost:3000 serves UI + API together
+# Terminal 1 — backend API on http://localhost:3000
+npm run server
+
+# Terminal 2 — frontend on http://localhost:5173 (proxies /api to :3000)
+npm run dev
 ```
 
-On your host, set the root to `server/` (start command `npm start`, or `node index.js`).
-`server/dist` is committed, so a plain deploy of that folder works out of the box.
+Visit **http://localhost:5173**, paste a URL (try `https://www.paulgraham.com/greatwork.html`), and hit **Summarize**.
 
-## Notes
+### 5. Production mode (single server)
 
-- The model is set via `GROQ_MODEL` in `server/.env` (default `openai/gpt-oss-20b`, the fastest general model on the current key). See https://console.groq.com/docs/models.
-- Only basic HTML text is scraped; heavy JavaScript-rendered or bot-protected pages may fail with a clear error.
-- `npm run build` type-checks and builds the client into `client/dist/`.
-# AI_Summarize
+```bash
+npm run build    # compiles client/ into server/dist
+npm start        # Express serves the UI + API on http://localhost:3000
+```
+
+---
+
+## 🔌 API
+
+**`POST /api/summarize`**
+
+```json
+{ "url": "https://example.com/article" }
+```
+
+Success `200`:
+
+```json
+{ "title": "Article Title", "url": "https://example.com/article", "summary": "3–5 sentence summary…" }
+```
+
+Error `4xx/5xx`:
+
+```json
+{ "error": "Human-readable reason" }
+```
+
+---
+
+## 🛠️ Tech Stack
+
+- **Frontend:** React 19, TypeScript, Vite
+- **Backend:** Node.js, Express 5
+- **Scraping:** cheerio
+- **AI:** Groq OpenAI-compatible chat completions (free tier) — model + fallbacks configurable via `GROQ_MODEL` in `server/.env`
+
+---
+
+## 📝 Notes & Limitations
+
+- Only plain HTML is scraped — JavaScript-rendered pages (SPAs) and bot-protected sites (e.g. Wikipedia can return 403) may fail with a clear error. That is by design for this assignment.
+- Scraped text is truncated to 15,000 characters before being sent to the model.
+- Requests time out after 15s (page fetch) / 60s (AI call).
