@@ -62,12 +62,12 @@
 
   <!-- client <-> server arrows -->
   <line x1="544" y1="300" x2="650" y2="300" stroke="#ffffff" stroke-width="3" marker-end="url(#arrowWhite)"/>
-  <text x="597" y="284" text-anchor="middle" font-size="15" fill="#ffffff" font-weight="600">POST /api/summarize</text>
-  <text x="597" y="326" text-anchor="middle" font-size="14" fill="#ffffff">{ url }</text>
+  <text x="597" y="282" text-anchor="middle" font-size="14" fill="#ffffff" font-weight="600">POST</text>
+  <text x="597" y="326" text-anchor="middle" font-size="12.5" fill="#ffffff">/api/summarize</text>
 
   <line x1="650" y1="380" x2="548" y2="380" stroke="#ffffff" stroke-width="3" marker-end="url(#arrowWhite)"/>
-  <text x="599" y="364" text-anchor="middle" font-size="14" fill="#ffffff">{ title, url, summary }</text>
-  <text x="599" y="404" text-anchor="middle" font-size="14" fill="#ffffff">or { error }</text>
+  <text x="599" y="362" text-anchor="middle" font-size="12.5" fill="#ffffff">{ title, url,</text>
+  <text x="599" y="404" text-anchor="middle" font-size="12.5" fill="#ffffff">summary } · { error }</text>
 
   <!-- Target page card -->
   <g filter="url(#shadow)">
