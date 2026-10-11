@@ -1,7 +1,12 @@
 import 'dotenv/config';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import * as cheerio from 'cheerio';
 import cors from 'cors';
 import express from 'express';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const clientDist = path.join(__dirname, 'dist');
 
 const PORT = process.env.PORT ?? 3000;
 const GROQ_MODEL = process.env.GROQ_MODEL ?? 'openai/gpt-oss-20b';
@@ -158,6 +163,14 @@ app.post('/api/summarize', async (req, res, next) => {
   }
 });
 
+app.use(express.static(clientDist));
+
+app.get(/^(?!\/api).*/, (_req, res) => {
+  res.sendFile(path.join(clientDist, 'index.html'), (err) => {
+    if (err) res.status(503).send('Frontend not built yet — run: npm run build');
+  });
+});
+
 app.use((err, _req, res, _next) => {
   const status = err.status ?? 500;
   if (err.name === 'TimeoutError') {
@@ -171,5 +184,5 @@ app.use((err, _req, res, _next) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`API server listening on http://localhost:${PORT}`);
+  console.log(`Server listening on http://localhost:${PORT} (API + built client)`);
 });

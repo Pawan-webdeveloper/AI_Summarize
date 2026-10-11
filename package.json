@@ -11,6 +11,7 @@
     "server": "npm start -w server",
     "server:dev": "npm run dev -w server",
     "build": "npm run build -w client",
+    "start": "npm start -w server",
     "lint": "npm run lint -w client"
   }
 }

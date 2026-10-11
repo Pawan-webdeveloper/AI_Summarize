@@ -39,6 +39,18 @@ npm run dev        # Vite dev server (proxies /api to :3000)
 
 Open the URL Vite prints (default http://localhost:5173), paste a webpage URL, and click Summarize.
 
+## Deploy (backend only)
+
+The client builds **into the server folder** (`server/dist`) and Express serves it, so you only deploy `server/`:
+
+```bash
+npm run build      # client → server/dist
+npm start          # http://localhost:3000 serves UI + API together
+```
+
+On your host, set the root to `server/` (start command `npm start`, or `node index.js`).
+`server/dist` is committed, so a plain deploy of that folder works out of the box.
+
 ## Notes
 
 - The model is set via `GROQ_MODEL` in `server/.env` (default `openai/gpt-oss-20b`, the fastest general model on the current key). See https://console.groq.com/docs/models.
