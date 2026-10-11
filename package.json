@@ -1,0 +1,16 @@
+{
+  "name": "ai-web-scraper",
+  "private": true,
+  "version": "1.0.0",
+  "workspaces": [
+    "client",
+    "server"
+  ],
+  "scripts": {
+    "dev": "npm run dev -w client",
+    "server": "npm start -w server",
+    "server:dev": "npm run dev -w server",
+    "build": "npm run build -w client",
+    "lint": "npm run lint -w client"
+  }
+}
