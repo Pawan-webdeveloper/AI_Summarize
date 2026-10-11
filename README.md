@@ -2,8 +2,6 @@
 
 **Paste any webpage URL → get an instant AI summary.**
 
-A full-stack app: a React frontend collects the URL, an Express backend scrapes the page's text, and the free-tier **Groq** API turns it into a short summary.
-
 ![AI Web Scraper Architecture](docs/architecture.png)
 
 ---
